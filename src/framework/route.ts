@@ -48,15 +48,16 @@ export class Route {
   }
 
   static Setup() {
-
     const paymentRepository: IPaymentRepository = new PaymentRepository();
 
-    const mercadoPagoProvider: IMercadoPagoProvider =
-      new MercadoPagoProviderImpl();
-    const paymentExternalGateway: IPaymentExternalGateway =
-      new PaymentExternalGateway(mercadoPagoProvider);
+    const mercadoPagoProvider: IMercadoPagoProvider = new MercadoPagoProviderImpl();
+    const paymentExternalGateway: IPaymentExternalGateway = new PaymentExternalGateway(mercadoPagoProvider);
 
-    const paymentUseCase = new PaymentUseCase(paymentRepository);
+    const paymentUseCase = new PaymentUseCase(
+      paymentRepository,
+      paymentExternalGateway
+    );
+
     const paymentController = new PaymentController(paymentUseCase);
 
     const app = express();
@@ -70,6 +71,15 @@ export class Route {
       if (!res.headersSent) {
         res.status(500).json({ error: "Internal server error" });
       }
+    });
+
+    app.post("/payment", async (req, resp, next) => {
+      await Route.asyncWrapper(
+        req,
+        resp,
+        next,
+        paymentController.createPayment.bind(paymentController)
+      );
     });
 
     app.post("/payment/webhook-notification", async (req, resp, next) => {

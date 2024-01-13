@@ -1,10 +1,9 @@
-import { Basket } from 'core/domain/entities/basket';
+import { Payment } from 'core/domain/entities/payment';
 import { IMercadoPagoProvider } from '../../infra/providers/mercadopago/MercadoPagoProvider';
-import { Order } from "core/domain/entities/order";
 
 export interface IPaymentExternalGateway {
 
-    create(order:Order ): Promise<string>
+    create(payment:Payment ): Promise<string>
 
 }
 
@@ -16,13 +15,9 @@ export class PaymentExternalGateway implements IPaymentExternalGateway {
         this.mercadoPagoProvider = mercadoPagoProvider;
     }
 
-    public async create(order:Order ): Promise<string> {
-
-        const { basket }  = order
-
-        const totalValue = basket?.totalPrice || 0
-
-        const paymentId = basket?.paymentId || ""
+    public async create(payment:Payment): Promise<string> {
+        const totalValue = payment?.totalPrice || 0
+        const paymentId = payment.id
 
         return await this.mercadoPagoProvider.createPayment(totalValue, paymentId)
 

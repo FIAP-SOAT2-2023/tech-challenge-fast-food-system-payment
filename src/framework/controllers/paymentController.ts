@@ -6,6 +6,13 @@ export class PaymentController {
 
   constructor(private readonly paymentStatusUseCase: PaymentUseCase) { }
 
+  async createPayment(req: Request, res: Response) {
+    const body = req.body
+    const result = await this.paymentStatusUseCase.createPayment(body);
+
+    res.status(200).json(result);
+  }
+
   async updatePaymentStatusByNsu(req: Request, res: Response) {
     const body = req.body
     const result = await this.paymentStatusUseCase.updatePaymentStatusByNsu(body);
