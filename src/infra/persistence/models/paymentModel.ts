@@ -1,6 +1,5 @@
 import db from "../database/connection";
 import { Model, InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute, Association, DataTypes, UUIDV4, UUID, Sequelize } from 'sequelize';
-import BasketModel from "./basketsModel";
 
 
 class PaymentModel extends Model<InferAttributes<PaymentModel>, InferCreationAttributes<PaymentModel>>{
@@ -9,7 +8,7 @@ class PaymentModel extends Model<InferAttributes<PaymentModel>, InferCreationAtt
     
     declare uuid: CreationOptional<string>
 
-    declare basket: NonAttribute<BasketModel>
+    //declare basket: NonAttribute<BasketModel>
 
     declare status: CreationOptional<string>
 
@@ -19,9 +18,12 @@ class PaymentModel extends Model<InferAttributes<PaymentModel>, InferCreationAtt
 
     declare qrCode: CreationOptional<string>
 
+    /*
     declare public static associations: { 
         basket: Association<PaymentModel, BasketModel>
      };
+
+     */
 
     declare createdAt: CreationOptional<Date>
     declare updatedAt: CreationOptional<Date>

@@ -1,5 +1,5 @@
 export interface Payment {
-  id: number;
+  id?: number;
   qrCode?: string;
   nsu?: string;
   status?: string;

@@ -1,5 +1,5 @@
-import { Payment } from 'core/domain/entities/payment';
 import { IMercadoPagoProvider } from '../../infra/providers/mercadopago/MercadoPagoProvider';
+import {Payment} from "../../core/domain/entities/payment";
 
 export interface IPaymentExternalGateway {
 
