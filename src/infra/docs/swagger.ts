@@ -661,10 +661,10 @@ const swaggerConfig = {
         type: "object",
         properties: {
           nsu: {
-            type: "string",
+            type: "integer",
             maxLength: 100,
             minLength: 2,
-            example: "nsu-eu198-1928"
+            example: 1234
           },
           status: {
             type: "string",

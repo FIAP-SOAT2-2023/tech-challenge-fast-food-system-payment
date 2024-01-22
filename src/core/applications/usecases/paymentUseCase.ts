@@ -1,4 +1,6 @@
 
+import PaymentStatus from '../../../framework/enum/paymentStatus';
+import OrderStatusKey from '../../../framework/enum//orderStatus';
 import { Payment } from '../../domain/entities/payment';
 import IPaymentRepository from '../../domain/repositories/paymentRepository';
 import { IPaymentUseCase } from '../../domain/usecases/IPaymentUseCase';
@@ -16,13 +18,14 @@ export class PaymentUseCase implements IPaymentUseCase {
 
   async createPayment(paymentNew: Payment): Promise<Payment> {
     return new Promise<Payment> (async (resolve) =>
-    {
+    { 
         const payment = await this.paymentRepository.createPayment(paymentNew)
-
         const checkoutUrl = await this.paymentExternalGateway.create(payment)
-        payment.checkoutUrl = checkoutUrl;
 
-        resolve(payment);
+        payment.checkoutUrl = checkoutUrl;
+        const paymentUpdate =await this.paymentRepository.updatePayment(payment)
+
+        resolve(paymentUpdate);
     })
   }
   
@@ -31,6 +34,21 @@ export class PaymentUseCase implements IPaymentUseCase {
   }
  
   updatePaymentStatusByNsu(body: Payment): Promise<Payment> {
-    return this.paymentRepository.updatePaymentStatusByNsu(body);
-  }
+    return new Promise<Payment> (async (resolve) =>
+    { 
+      const payment = this.paymentRepository.updatePaymentStatusByNsu(body);
+
+      let orderStatus: string;
+
+      if (body.status === PaymentStatus.APPROVED) {
+          orderStatus = OrderStatusKey.PREPARATION;
+      } else {
+          orderStatus = OrderStatusKey.CANCELLED;
+      }
+
+      //Chamar o serviço de preparação (cozinha)
+
+      resolve(payment);
+  })
+}
 }

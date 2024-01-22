@@ -39,6 +39,7 @@ export class PaymentRepository implements IPaymentRepository {
 
         return new Promise<Payment> (async  (resolve ) =>  {
             
+            paymentNew.nsu = paymentNew.orderId
             let paymentCreated: PaymentModel = await PaymentModel.create(paymentNew);
 
             const {id:idPayment, createdAt, updatedAt, ...paymentValues} =  paymentCreated.dataValues
@@ -75,5 +76,32 @@ export class PaymentRepository implements IPaymentRepository {
                 status: paymentUpddated.status
             })
         })
+    }
+
+    async updatePayment(body: Payment): Promise<Payment> {
+        return new Promise<Payment>(async (resolve) => {
+            const payment = await PaymentModel.findOne({
+                where: {
+                    nsu: body.nsu,
+                },
+            });
+    
+            if (!payment) {
+                throw new Error('Nsu não encontrado.');
+            }
+    
+            const keysToUpdate = Object.keys(body);
+    
+            const updates: Record<string, unknown> = {};
+            for (const key of keysToUpdate) {
+                updates[key] = body[key];
+            }
+    
+            const paymentUpdated = await payment.update(updates);
+    
+            resolve({
+                ...paymentUpdated.get(),
+            });
+        });
     }
 }

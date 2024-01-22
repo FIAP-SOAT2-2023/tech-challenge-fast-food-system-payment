@@ -8,32 +8,30 @@ class PaymentModel extends Model<InferAttributes<PaymentModel>, InferCreationAtt
     
     declare uuid: CreationOptional<string>
 
-    //declare basket: NonAttribute<BasketModel>
+    declare orderId: CreationOptional<number>
 
     declare status: CreationOptional<string>
 
     declare paidAt: CreationOptional<Date>
 
-    declare nsu: CreationOptional<string>
+    declare nsu: CreationOptional<number>
 
     declare qrCode: CreationOptional<string>
 
-    /*
-    declare public static associations: { 
-        basket: Association<PaymentModel, BasketModel>
-     };
-
-     */
-
     declare createdAt: CreationOptional<Date>
+
     declare updatedAt: CreationOptional<Date>
+
+    declare totalPrice: CreationOptional<number>
+
+    declare checkoutUrl: CreationOptional<string>
 }
 
 PaymentModel.init({
-    id: {
-        type: DataTypes.INTEGER.UNSIGNED,
-        autoIncrement: true,
-        primaryKey: true
+      id: {
+          type: DataTypes.INTEGER.UNSIGNED,
+          autoIncrement: true,
+          primaryKey: true
       },
       uuid: {
         type: DataTypes.UUID,
@@ -41,20 +39,34 @@ PaymentModel.init({
         allowNull: false,
         defaultValue:  DataTypes.UUIDV4
       },
+      orderId: {
+          type: DataTypes.INTEGER.UNSIGNED,
+      },
       status: {
         type: DataTypes.STRING,
         allowNull: true,
         defaultValue: "PENDING"
       },
       nsu: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER.UNSIGNED,
         allowNull: true
       },
       qrCode: {
         type: DataTypes.STRING,
         allowNull: true
       },
-      paidAt: { type: DataTypes.DATE},
+      paidAt: {
+        type: DataTypes.DATE
+      },
+    
+      totalPrice: {
+        type: DataTypes.DOUBLE.UNSIGNED,
+      },
+
+      checkoutUrl: {
+        type: DataTypes.STRING,
+      },
+
       createdAt: DataTypes.DATE,
       updatedAt: DataTypes.DATE,
 },

@@ -68,6 +68,8 @@ export class Route {
 
     app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
       console.error("Error:", err);
+      console.error("Stack trace:", (err as any).stack);
+
       if (!res.headersSent) {
         res.status(500).json({ error: "Internal server error" });
       }
