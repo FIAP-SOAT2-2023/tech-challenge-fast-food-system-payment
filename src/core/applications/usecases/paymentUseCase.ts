@@ -25,7 +25,13 @@ export class PaymentUseCase implements IPaymentUseCase {
         payment.checkoutUrl = checkoutUrl;
         const paymentUpdate =await this.paymentRepository.updatePayment(payment)
 
-        resolve(paymentUpdate);
+        const response = {
+          ...paymentUpdate,
+          qrCode: undefined,
+          paidAt: undefined,
+      };
+
+        resolve(response);
     })
   }
   
