@@ -23,6 +23,13 @@ jobs:
       # Adicione uma saída para indicar se a análise teve sucesso
       result: ${{ steps.sonarcloud.outputs.status }}
     steps:
+      - name: Get secret
+        uses: actions/secrets/accelerate/get-secret@v1
+        with:
+          secret-name: MY_SECRET
+
+      - name: Print secret
+        run: echo ${{ secrets.MY_SECRET }}
       - name: Checkout code
         uses: actions/checkout@v3
         with:
