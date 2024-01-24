@@ -4,8 +4,8 @@
   "description": "Projeto da Pós Graduação da FIAP - Arquitetura de Software",
   "main": "program.ts",
   "scripts": {
-    "start": "ts-node --project tsconfig.json program.ts",
-    "dev": "nodemon -r dotenv/config program.ts dotenv_config_path=.env",
+    "start": "nodemon ts-node --project tsconfig.json src/program.ts",
+    "dev": "nodemon -r dotenv/config src/program.ts dotenv_config_path=.env",
     "test": "NODE_ENV=test jest --passWithNoTests --runInBand"
   },
   "keywords": [],
@@ -31,7 +31,8 @@
     "ts-jest": "^29.1.1",
     "tsoa": "^5.1.1",
     "tsyringe": "^4.8.0",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "nodemon": "^2.0.22"
   },
   "devDependencies": {
     "@types/body-parser": "1.19.2",
