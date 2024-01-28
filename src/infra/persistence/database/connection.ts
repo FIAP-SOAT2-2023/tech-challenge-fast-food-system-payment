@@ -41,7 +41,7 @@ sequelize.authenticate()
 
     try {
       console.log('Inicializando as migrations');
-      runMigrations();
+      // runMigrations();
     }catch (error) {
       console.log('Error nas migrations');
 
