@@ -6,13 +6,16 @@ import IPaymentRepository from '../../domain/repositories/paymentRepository';
 import { IPaymentUseCase } from '../../domain/usecases/IPaymentUseCase';
 
 import { IPaymentExternalGateway, PaymentExternalGateway } from './../../../framework/gateways/PaymentExternalGateway';
+import { IPreparationApi } from 'src/framework/api/PreparationApi';
+import { Preparation } from 'src/core/domain/entities/preparation';
 
 
 export class PaymentUseCase implements IPaymentUseCase {
   
   constructor(
     private readonly paymentRepository: IPaymentRepository,
-    private readonly paymentExternalGateway: IPaymentExternalGateway
+    private readonly paymentExternalGateway: IPaymentExternalGateway,
+    private readonly preparationApi: IPreparationApi
     
   ) {}
 
@@ -42,7 +45,7 @@ export class PaymentUseCase implements IPaymentUseCase {
   updatePaymentStatusByNsu(body: Payment): Promise<Payment> {
     return new Promise<Payment> (async (resolve) =>
     { 
-      const payment = this.paymentRepository.updatePaymentStatusByNsu(body);
+      const payment = await this.paymentRepository.updatePaymentStatusByNsu(body);
 
       let orderStatus: string;
 
@@ -51,8 +54,13 @@ export class PaymentUseCase implements IPaymentUseCase {
       } else {
           orderStatus = OrderStatusKey.CANCELLED;
       }
-
-      //Chamar o serviço de preparação (cozinha)
+      
+      const preparationData: Preparation = {
+          paymentId: body.nsu,
+          status: orderStatus,  
+      };
+      
+      await this.preparationApi.create(preparationData);
 
       resolve(payment);
   })
