@@ -2,15 +2,338 @@ const swaggerConfig = {
   openapi: "3.0.0",
   tags: [
     {
-      name: "Payment",
-      description: "Microsservice Payment",
+      name: "Products",
+    },
+    {
+      name: "Customers",
+    },
+    {
+      name: "Checkout",
     },
   ],
   paths: {
-    "/payment/": {
+    "/products": {
+      get: {
+        summary: "Retorna todos os produtos",
+        tags: ["Products"],
+        parameters: [
+          {
+            in: "query",
+            name: "category",
+            schema: {
+              type: "string",
+              enum: ["Lanche", "Acompanhamento", "Bebida", "Sobremesa"],
+            },
+            description: "Filtrar por categoria",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de produtos retornada com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    $ref: "#/components/schemas/Product",
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Erro interno do servidor",
+          },
+        },
+      },
       post: {
-        summary: "Criar pagamento",
-        tags: ["Payment"],
+        summary: "Cria um novo produto",
+        tags: ["Products"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/Product",
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Produto criado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Product",
+                },
+              },
+            },
+          },
+          500: {
+            description: "Erro interno do servidor",
+          },
+        },
+      },
+    },
+    "/products/{id}": {
+      put: {
+        summary: "Atualiza um produto existente",
+        tags: ["Products"],
+        parameters: [
+          {
+            in: "path",
+            name: "id",
+            required: true,
+            schema: {
+              type: "string",
+            },
+            description: "ID do produto a ser atualizado",
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/Product",
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Produto atualizado com sucesso",
+          },
+          404: {
+            description: "Produto não encontrado",
+          },
+          500: {
+            description: "Erro interno do servidor",
+          },
+        },
+      },
+      get: {
+        summary: "Retorna um produto pelo ID",
+        tags: ["Products"],
+        parameters: [
+          {
+            in: "path",
+            name: "id",
+            required: true,
+            schema: {
+              type: "string",
+            },
+            description: "ID do produto a ser recuperado",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Produto retornado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Product",
+                },
+              },
+            },
+          },
+          404: {
+            description: "Produto não encontrado",
+          },
+          500: {
+            description: "Erro interno do servidor",
+          },
+        },
+      },
+      delete: {
+        summary: "Deleta um produto pelo ID",
+        tags: ["Products"],
+        parameters: [
+          {
+            in: "path",
+            name: "id",
+            required: true,
+            schema: {
+              type: "string",
+            },
+            description: "ID do produto a ser deletado",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Produto deletado com sucesso",
+          },
+          404: {
+            description: "Produto não encontrado",
+          },
+          500: {
+            description: "Erro interno do servidor",
+          },
+        },
+      },
+    },
+    "/customers": {
+      post: {
+        summary: "Cria um novo cliente",
+        tags: ["Customers"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/Customer",
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Usuário criado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Customer",
+                },
+              },
+            },
+          },
+          500: {
+            description: "Erro interno do servidor",
+          },
+        },
+      },
+    },
+    "/customers/{document}": {
+      get: {
+        summary: "Retorna um cliente pelo Documento",
+        tags: ["Customers"],
+        parameters: [
+          {
+            in: "path",
+            name: "document",
+            required: true,
+            schema: {
+              type: "string",
+            },
+            description: "Documento do cliente a ser recuperado",
+          },
+        ],
+        responses: {
+          200: {
+            description: "cliente retornado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Customer",
+                },
+              },
+            },
+          },
+          404: {
+            description: "cliente não encontrado",
+          },
+          500: {
+            description: "Erro interno do servidor",
+          },
+        },
+      },
+    },
+    "/customers/{mail}": {
+      get: {
+        summary: "Retorna um cliente pelo E-mail",
+        tags: ["Customers"],
+        parameters: [
+          {
+            in: "path",
+            name: "mail",
+            required: true,
+            schema: {
+              type: "string",
+            },
+            description: "E-mail do cliente a ser recuperado",
+          },
+        ],
+        responses: {
+          200: {
+            description: "cliente retornado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Customer",
+                },
+              },
+            },
+          },
+          404: {
+            description: "cliente não encontrado",
+          },
+          500: {
+            description: "Erro interno do servidor",
+          },
+        },
+      },
+    },
+    "/checkout": {
+      post: {
+        summary: "Cria um novo pedido",
+        tags: ["Checkout"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/Basket",
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Checkout criado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Basket",
+                },
+              },
+            },
+          },
+          500: {
+            description: "Erro interno do servidor",
+          },
+        },
+      },
+    },
+    "/checkout/pending": {
+      get: {
+        summary: "Retorna todos os pedidos pendentes",
+        tags: ["Checkout"],
+        parameters: [],
+        responses: {
+          200: {
+            description: "Lista de produtos retornada com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    $ref: "#/components/schemas/Basket",
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Erro interno do servidor",
+          },
+        },
+      },
+    },
+    "/orders/status": {
+      get: {
+        summary: "Retorna todos os Status",
+        tags: ["Order Status"],
         parameters: [],
         requestBody: {
           required: true,

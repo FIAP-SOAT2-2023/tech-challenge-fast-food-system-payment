@@ -17,6 +17,7 @@ import {
   IMercadoPagoProvider,
   MercadoPagoProviderImpl,
 } from "../infra/providers/mercadopago/MercadoPagoProvider";
+import { IPreparationApi, PreparationApi } from "./api/PreparationApi";
 
 export interface Error {
   message?: string;
@@ -52,10 +53,12 @@ export class Route {
 
     const mercadoPagoProvider: IMercadoPagoProvider = new MercadoPagoProviderImpl();
     const paymentExternalGateway: IPaymentExternalGateway = new PaymentExternalGateway(mercadoPagoProvider);
+    const preparationApi: IPreparationApi = new PreparationApi()
 
     const paymentUseCase = new PaymentUseCase(
       paymentRepository,
-      paymentExternalGateway
+      paymentExternalGateway,
+      preparationApi
     );
 
     const paymentController = new PaymentController(paymentUseCase);
