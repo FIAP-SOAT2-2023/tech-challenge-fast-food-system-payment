@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.1560.0",
     "body-parser": "^1.18.3",
     "class-transformer": "^0.5.1",
     "db-migrate": "^0.11.13",
@@ -24,6 +25,7 @@
     "mysql": "^2.18.1",
     "mysql2": "^3.3.3",
     "mysql8": "^2.17.3",
+    "nodemon": "^2.0.22",
     "reflect-metadata": "^0.1.13",
     "sequelize": "^6.32.0",
     "swagger-jsdoc": "^6.2.8",
@@ -31,8 +33,7 @@
     "ts-jest": "^29.1.1",
     "tsoa": "^5.1.1",
     "tsyringe": "^4.8.0",
-    "uuid": "^8.3.2",
-    "nodemon": "^2.0.22"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/body-parser": "1.19.2",
