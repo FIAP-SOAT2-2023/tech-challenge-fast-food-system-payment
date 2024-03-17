@@ -51,8 +51,10 @@ export class Route {
   static Setup() {
     const paymentRepository: IPaymentRepository = new PaymentRepository();
 
-    const mercadoPagoProvider: IMercadoPagoProvider = new MercadoPagoProviderImpl();
-    const paymentExternalGateway: IPaymentExternalGateway = new PaymentExternalGateway(mercadoPagoProvider);
+    const mercadoPagoProvider: IMercadoPagoProvider =
+      new MercadoPagoProviderImpl();
+    const paymentExternalGateway: IPaymentExternalGateway =
+      new PaymentExternalGateway(mercadoPagoProvider);
 
     const paymentUseCase = new PaymentUseCase(
       paymentRepository,
@@ -61,9 +63,7 @@ export class Route {
 
     const paymentController = new PaymentController(paymentUseCase);
 
-
     orderListener(paymentUseCase);
-
 
     const app = express();
     app.use(express.json());
