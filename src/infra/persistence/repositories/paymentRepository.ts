@@ -101,4 +101,27 @@ export class PaymentRepository implements IPaymentRepository {
             });
         });
     }
+
+    async reversedPaymentById(paymentId: string): Promise<Payment> {
+        
+        return new Promise<Payment> (async  (resolve ) => {
+        
+            const payment = await PaymentModel.findOne({
+                where: {
+                    paymentId: paymentId
+                }
+            });
+
+            if (!payment) {
+                throw new Error('Pagamento não encontrado.');
+            }
+
+            const paymentUpdated = await payment.update({
+                status: "REVERSED",
+                paidAt: new Date()
+            })
+
+            resolve(paymentUpdated.dataValues)
+        })
+    }
 }

@@ -5,4 +5,5 @@ export default interface IPaymentRepository {
   updatePaymentStatusByOrderId(body: Payment): Promise<Payment>
   getPaymentByOrderId(orderId: string): Promise<Payment>
   updatePayment(paymentNew: Payment): Promise<Payment>
+  reversedPaymentById(paymentId: string): Promise<Payment>
 }

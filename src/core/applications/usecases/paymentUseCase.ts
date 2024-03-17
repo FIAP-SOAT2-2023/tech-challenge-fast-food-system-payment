@@ -103,16 +103,27 @@ export class PaymentUseCase implements IPaymentUseCase {
     );
   }
 
-  async reverseOrder(sqsClient: SQSClient, payment: Payment) {
-    console.error("Enviando mensagem para fila de compensação");
-    // Enviar mensagem para fila de compensação
-    await sqsClient.send(
-      new SendMessageCommand({
-        QueueUrl: process.env.AWS_COMPESATION_ORDER_QUEE01,
-        MessageBody: JSON.stringify(payment),
-        MessageDeduplicationId: payment?.orderId,
-        MessageGroupId: "compensation",
-      })
-    );
+  async reversedPaymentById(paymentId: string): Promise<Payment> {
+    return new Promise<Payment>(async (resolve, reject) => {
+      const paymentUpdate = await this.paymentRepository.reversedPaymentById(paymentId);
+      console.log("Sucesso para atualizar pagamento para Reversed.")
+      const sqsClient = new SQSClient({
+        region: process.env.AWS_REGION,
+        credentials: {
+          accessKeyId: process.env.AWS_ACCESSKEY,
+          secretAccessKey: process.env.AWS_SECRETKEY,
+        },
+      });
+
+      const payment = {
+        orderId: paymentUpdate.orderId,
+      };
+      
+      await this.sendCompensationMessage(sqsClient, payment);
+      console.log("Sucesso para enviar mensagem para fila de compensação.")
+
+      resolve(payment);
+    });
   }
+
 }

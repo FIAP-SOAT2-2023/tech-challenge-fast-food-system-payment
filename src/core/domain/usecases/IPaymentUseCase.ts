@@ -9,4 +9,6 @@ export interface IPaymentUseCase {
 
     createPayment(paymentNew: Payment): Promise<Payment>
 
+    reversedPaymentById(paymentId: string): Promise<Payment>
+
 }
