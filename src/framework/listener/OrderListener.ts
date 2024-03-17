@@ -2,7 +2,7 @@ import {DeleteMessageCommand, ReceiveMessageCommand, SendMessageCommand, SQSClie
 import * as AWS from 'aws-sdk';
 import {Payment} from "../../core/domain/entities/payment";
 import {IPaymentUseCase} from "../../core/domain/usecases/IPaymentUseCase";
-const paymentListener = async (paymentUseCase: IPaymentUseCase) => {
+const orderListener = async (paymentUseCase: IPaymentUseCase) => {
 
     const sqsClient = new SQSClient({
         region: process.env.AWS_REGION,
@@ -33,6 +33,7 @@ const paymentListener = async (paymentUseCase: IPaymentUseCase) => {
                 orderId: body?.order?.uuid,
                 totalPrice: body.totalPrice,
                 paymentId: body.order.payment,
+                basketOrigin: JSON.stringify(body)
             }
 
             // Simulando erro
@@ -92,10 +93,10 @@ const paymentListener = async (paymentUseCase: IPaymentUseCase) => {
 
     } catch (error) {
         console.error('Erro ao iniciar a escuta da fila:', error);
-        paymentListener(paymentUseCase);
+        orderListener(paymentUseCase);
     }
 
 
 }
 
-export default paymentListener;
+export default orderListener;

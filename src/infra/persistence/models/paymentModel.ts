@@ -38,6 +38,8 @@ class PaymentModel extends Model<InferAttributes<PaymentModel>, InferCreationAtt
     declare totalPrice: CreationOptional<number>
 
     declare checkoutUrl: CreationOptional<string>
+
+    declare basketOrigin: CreationOptional<string>
 }
 
 PaymentModel.init({
@@ -82,6 +84,13 @@ PaymentModel.init({
         checkoutUrl: {
             type: DataTypes.STRING,
         },
+
+        basketOrigin: {
+            type: DataTypes.TEXT,
+
+
+        },
+
 
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE,

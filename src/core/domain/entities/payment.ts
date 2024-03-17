@@ -7,5 +7,6 @@ export interface Payment {
   status?: string;
   paidAt?: Date;
   totalPrice?: number;
-  checkoutUrl?: string
+  checkoutUrl?: string;
+  basketOrigin?: string;
 }

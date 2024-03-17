@@ -68,7 +68,8 @@ export class PaymentUseCase implements IPaymentUseCase {
 
             }
 
-            const bodyJson = JSON.stringify(payment);
+
+            const bodyJson = JSON.stringify(JSON.parse(payment.basketOrigin));
 
             try {
 
