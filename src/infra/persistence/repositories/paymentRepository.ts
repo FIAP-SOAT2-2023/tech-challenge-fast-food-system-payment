@@ -39,7 +39,7 @@ export class PaymentRepository implements IPaymentRepository {
 
         return new Promise<Payment> (async  (resolve ) =>  {
             
-            paymentNew.nsu = paymentNew.orderId
+            paymentNew.nsu = Math.floor(Math.random() * 1000000);
             let paymentCreated: PaymentModel = await PaymentModel.create(paymentNew);
 
             const {id:idPayment, createdAt, updatedAt, ...paymentValues} =  paymentCreated.dataValues
@@ -52,13 +52,13 @@ export class PaymentRepository implements IPaymentRepository {
         })
     }
 
-    async updatePaymentStatusByNsu(body: Payment): Promise<Payment> {
+    async updatePaymentStatusByOrderId(body: Payment): Promise<Payment> {
         
         return new Promise<Payment> (async  (resolve ) => {
         
             const payment = await PaymentModel.findOne({
                 where: {
-                    nsu: body.nsu
+                    orderId: body.orderId
                 }
             });
 
@@ -66,15 +66,12 @@ export class PaymentRepository implements IPaymentRepository {
                 throw new Error('Nsu não encontrado.');
             }
 
-            const paymentUpddated = await payment.update({
+            const paymentUpdated = await payment.update({
                 status: body.status,
                 paidAt: new Date()
             })
 
-            resolve({
-                nsu: paymentUpddated.nsu,
-                status: paymentUpddated.status
-            })
+            resolve(paymentUpdated.dataValues)
         })
     }
 

@@ -1,98 +1,108 @@
 import PaymentStatus from "../../../framework/enum/paymentStatus";
 import OrderStatusKey from "../../../framework/enum//orderStatus";
-import { Payment } from "../../domain/entities/payment";
+import {Payment} from "../../domain/entities/payment";
 import IPaymentRepository from "../../domain/repositories/paymentRepository";
-import { IPaymentUseCase } from "../../domain/usecases/IPaymentUseCase";
+import {IPaymentUseCase} from "../../domain/usecases/IPaymentUseCase";
 import {
-  IPaymentExternalGateway,
-  PaymentExternalGateway,
+    IPaymentExternalGateway,
+    PaymentExternalGateway,
 } from "./../../../framework/gateways/PaymentExternalGateway";
 import {
-  SQSClient,
-  SendMessageCommand,
-  ReceiveMessageCommand,
+    SQSClient,
+    SendMessageCommand,
+    ReceiveMessageCommand,
 } from "@aws-sdk/client-sqs";
 import "dotenv/config";
+
 export class PaymentUseCase implements IPaymentUseCase {
-  constructor(
-    private readonly paymentRepository: IPaymentRepository,
-    private readonly paymentExternalGateway: IPaymentExternalGateway
-  ) {}
+    constructor(
+        private readonly paymentRepository: IPaymentRepository,
+        private readonly paymentExternalGateway: IPaymentExternalGateway
+    ) {
+    }
 
-  async createPayment(paymentNew: Payment): Promise<Payment> {
-    return new Promise<Payment>(async (resolve) => {
-      const payment = await this.paymentRepository.createPayment(paymentNew);
-      const checkoutUrl = await this.paymentExternalGateway.create(payment);
+    async createPayment(paymentNew: Payment): Promise<Payment> {
+        return new Promise<Payment>(async (resolve, reject) => {
+            const payment = await this.paymentRepository.createPayment(paymentNew);
+            const checkoutUrl = await this.paymentExternalGateway.create(payment);
 
-      payment.checkoutUrl = checkoutUrl;
-      const paymentUpdate = await this.paymentRepository.updatePayment(payment);
+            payment.checkoutUrl = checkoutUrl;
+            const paymentUpdate = await this.paymentRepository.updatePayment(payment);
 
-      const response = {
-        ...paymentUpdate,
-        qrCode: undefined,
-        paidAt: undefined,
-      };
+            const response = {
+                ...paymentUpdate,
+                qrCode: undefined,
+                paidAt: undefined,
+            };
 
-      const sqsClient = new SQSClient({
-        region: process.env.AWS_REGION,
-        credentials: {
-          accessKeyId: process.env.AWS_ACCESSKEY,
-          secretAccessKey: process.env.AWS_SECRETKEY,
-        },
-      });
+            resolve(response);
+        });
+    }
 
-      const params = {
-        QueueUrl: process.env.AWS_PAYMENT_QUEE01,
-        MaxNumberOfMessages: 10,
-        VisibilityTimeout: 30,
-        WaitTimeSeconds: 20,
-      };
+    getPaymentByOrderId(orderId: string): Promise<Payment> {
+        return this.paymentRepository.getPaymentByOrderId(orderId);
+    }
 
-      try {
-        const receiveMessageCommand = new ReceiveMessageCommand(params);
-        const readMessage = await sqsClient.send(receiveMessageCommand);
-        if (readMessage.Messages && readMessage.Messages.length > 0) {
-          for (const message of readMessage.Messages) {
-            console.log("Corpo da Mensagem:", message.Body);
-            if (message.Body !== undefined) {
-              const params2 = {
-                QueueUrl: process.env.AWS_ORDER_QUEE01,
-                MessageBody: ` Detalhes do pedido:  
-                ${message.Body}`,
-                MessageGroupId: process.env.AWS_GRUPO01,
-              };
-              const command = new SendMessageCommand(params2);
-              const response2 = await sqsClient.send(command);
+    updatePaymentStatusByOrderId(body: Payment): Promise<Payment> {
+        return new Promise<Payment>(async (resolve, reject) => {
+            const payment = await this.paymentRepository.updatePaymentStatusByOrderId(body);
+
+            if (!payment){
+                reject('Pagamento não encontrado');
             }
-          }
-        }
-      } catch (error) {
-        console.error("Erro ao receber mensagens da fila:", error);
-      }
 
-      resolve(response);
-    });
-  }
 
-  getPaymentByOrderId(orderId: string): Promise<Payment> {
-    return this.paymentRepository.getPaymentByOrderId(orderId);
-  }
+            const sqsClient = new SQSClient({
+                region: process.env.AWS_REGION,
+                credentials: {
+                    accessKeyId: process.env.AWS_ACCESSKEY,
+                    secretAccessKey: process.env.AWS_SECRETKEY,
+                },
+            });
 
-  updatePaymentStatusByNsu(body: Payment): Promise<Payment> {
-    return new Promise<Payment>(async (resolve) => {
-      const payment = this.paymentRepository.updatePaymentStatusByNsu(body);
+            if (payment.status != PaymentStatus.APPROVED) {
 
-      let orderStatus: string;
+                await this.sendCompensationMessage(sqsClient, payment);
+                resolve(payment);
+                return
 
-      if (body.status === PaymentStatus.APPROVED) {
-        orderStatus = OrderStatusKey.PREPARATION;
-      } else {
-        orderStatus = OrderStatusKey.CANCELLED;
-      }
+            }
 
-      //Chamar o serviço de preparação (cozinha)
+            const bodyJson = JSON.stringify(payment);
 
-      resolve(payment);
-    });
-  }
+            try {
+
+                console.debug("Enviando mensagem para fila de pagamento", bodyJson);
+
+                const command = new SendMessageCommand({
+                    QueueUrl: process.env.AWS_PAYMENT_QUEE01,
+                    MessageBody: bodyJson,
+                    MessageGroupId: process.env.AWS_GRUPO01,
+                    MessageDeduplicationId: payment?.orderId,
+                });
+
+                const responseCreated = await sqsClient.send(command);
+
+                console.log("Mensagem enviada com sucesso:", responseCreated);
+            } catch (error) {
+                console.error("Erro ao receber mensagens da fila:", error);
+                await this.sendCompensationMessage(sqsClient, payment)
+
+            }
+
+
+            resolve(payment);
+        });
+    }
+
+     async sendCompensationMessage(sqsClient: SQSClient, payment: Payment) {
+        console.error('Enviando mensagem para fila de compensação');
+        // Enviar mensagem para fila de compensação
+        await sqsClient.send(new SendMessageCommand({
+            QueueUrl: process.env.AWS_COMPESATION_ORDER_QUEE01,
+            MessageBody: JSON.stringify(payment),
+            MessageDeduplicationId: payment?.orderId,
+            MessageGroupId: 'compensation'
+        }));
+    }
 }

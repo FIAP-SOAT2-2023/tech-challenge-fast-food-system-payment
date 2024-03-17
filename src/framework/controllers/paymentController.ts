@@ -13,9 +13,9 @@ export class PaymentController {
     res.status(200).json(result);
   }
 
-  async updatePaymentStatusByNsu(req: Request, res: Response) {
+  async updatePaymentStatusByOrderId(req: Request, res: Response) {
     const body = req.body
-    const result = await this.paymentStatusUseCase.updatePaymentStatusByNsu(body);
+    const result = await this.paymentStatusUseCase.updatePaymentStatusByOrderId(body);
 
     res.status(200).json(result);
   }

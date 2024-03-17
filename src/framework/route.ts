@@ -17,6 +17,7 @@ import {
   IMercadoPagoProvider,
   MercadoPagoProviderImpl,
 } from "../infra/providers/mercadopago/MercadoPagoProvider";
+import paymentListener from "./listener/PaymentListener";
 
 export interface Error {
   message?: string;
@@ -60,6 +61,10 @@ export class Route {
 
     const paymentController = new PaymentController(paymentUseCase);
 
+
+    paymentListener(paymentUseCase);
+
+
     const app = express();
     app.use(express.json());
 
@@ -89,7 +94,7 @@ export class Route {
         req,
         resp,
         next,
-        paymentController.updatePaymentStatusByNsu.bind(paymentController)
+        paymentController.updatePaymentStatusByOrderId.bind(paymentController)
       );
     });
 

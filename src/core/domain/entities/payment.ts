@@ -1,6 +1,7 @@
 export interface Payment {
   id?: number;
-  orderId?: number;
+  orderId?: string;
+  paymentId?: string;
   qrCode?: string;
   nsu?: number;
   status?: string;
